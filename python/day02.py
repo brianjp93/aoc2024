@@ -15,13 +15,10 @@ def p2():
     safe_count = 0
     for row in data.splitlines():
         row = list(map(int, row.split()))
-        if is_safe(row):
-            safe_count += 1
-        else:
-            for i in range(len(row)):
-                if is_safe(row[:i] + row[i+1:]):
-                    safe_count += 1
-                    break
+        for i in range(len(row) + 1):
+            if is_safe(row[:i] + row[i+1:]):
+                safe_count += 1
+                break
     return safe_count
 
 
