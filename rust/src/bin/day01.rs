@@ -11,11 +11,7 @@ fn main() {
         let b = parts.next().unwrap();
         l1.push(a);
         l2.push(b);
-        if let Some(x) = l2_counter.get_mut(&b) {
-            *x+=1;
-        } else {
-            l2_counter.insert(b, 1);
-        }
+        *l2_counter.entry(b).or_insert(0) += 1;
     }
     l1.sort_unstable();
     l2.sort_unstable();
