@@ -1,85 +1,80 @@
 from pathlib import Path
 import itertools
+from dataclasses import dataclass
 
 data = (Path(__file__).parent.parent / 'data/day04.txt').read_text()
 
 
-def get_map(data: str):
-    m = {}
-    for y, row in enumerate(data.splitlines()):
-        for x, ch in enumerate(row):
-            m[(x, y)] = ch
-    return m
+@dataclass(frozen=True)
+class Point:
+    x: int
+    y: int
+
+    def __hash__(self) -> int:
+        return hash((self.x, self.y))
+
+    def __add__(self, other):
+        return self.__class__(self.x + other.x, self.y + other.y)
+
+    def copy(self):
+        return self.__class__(self.x, self.y)
 
 
 def dirs():
-    for a, b in itertools.product((-1, 0, 1), repeat=2):
-        if a == 0 and b == 0:
-            continue
-        yield a, b
+    yield from (Point(*coord) for coord in itertools.product((-1, 0, 1), repeat=2) if coord != (0, 0))
 
 
-def count_xmas_at(m: dict, coord: tuple[int, int]):
-    x, y = coord
-    goal = 'XMAS'
-    found = m[coord]
-    count = 0
-    if found != 'X':
-        return 0
-    ncoord = (x, y)
-    for a, b in dirs():
-        while goal.startswith(found):
-            if goal == found:
-                count += 1
-            ncoord = (ncoord[0] + a, ncoord[1] + b)
-            found = found + m.get(ncoord, ' ')
-        ncoord = (x, y)
-        found = m[coord]
-    return count
+class Map:
+    def __init__(self, data):
+        self.m, self.max_x, self.max_y = self.parse(data)
 
-def is_mas_x(m: dict, coord: tuple[int, int]):
-    x, y = coord
-    if m[coord] != "A":
-        return False
-    coord = (x, y)
-    found = 0
-    for diag in (((1, 1), (-1, -1)), ((-1, 1), (1, -1))):
-        find = set("MS")
-        for a, b in diag:
-            ncoord = coord[0] + a, coord[1] + b
-            ch = m.get(ncoord, ' ')
-            if ch in find:
-                find.remove(ch)
-                found += 1
-    # there should be 4 found letters (M, M, S, S)
-    return found == 4
+    def parse(self, data):
+        m = {}
+        max_x = max_y = 0
+        for y, row in enumerate(data.splitlines()):
+            max_y = max(max_y, y)
+            for x, ch in enumerate(row):
+                m[Point(x, y)] = ch
+                max_x = max(max_x, x)
+        return m, max_x, max_y
 
+    def count_xmas_at(self, coord: Point):
+        goal = 'XMAS'
+        count = 0
+        if self.m[coord] != 'X':
+            return 0
+        for point in dirs():
+            ncoord = coord.copy()
+            found = self.m[coord]
+            while goal.startswith(found):
+                if goal == found:
+                    count += 1
+                ncoord = ncoord + point
+                found = found + self.m.get(ncoord, ' ')
+        return count
 
-def find_mas_x(data: str):
-    m = get_map(data)
-    max_x = max(x[0] for x in m.keys())
-    max_y = max(x[1] for x in m.keys())
+    def is_mas_x(self, coord: Point):
+        if self.m[coord] != "A":
+            return False
+        found = 0
+        for diag in ((Point(1, 1), Point(-1, -1)), (Point(-1, 1), Point(1, -1))):
+            find = set("MS")
+            for point in diag:
+                ncoord = coord + point
+                ch = self.m.get(ncoord, ' ')
+                if ch in find:
+                    find.remove(ch)
+                    found += 1
+        # there should be 4 found letters (M, M, S, S)
+        return found == 4
 
-    count = 0
-    for y in range(max_y + 1):
-        for x in range(max_x + 1):
-            if is_mas_x(m, (x, y)):
-                count += 1
-    return count
+    def find_mas_x(self):
+        return sum(self.is_mas_x(Point(x, y)) for y, x in itertools.product(range(self.max_y + 1), range(self.max_x + 1)))
 
-
-def find_xmas(data: str):
-    m = get_map(data)
-    max_x = max(x[0] for x in m.keys())
-    max_y = max(x[1] for x in m.keys())
-
-    count = 0
-    for y in range(max_y + 1):
-        for x in range(max_x + 1):
-            count += count_xmas_at(m, (x, y))
-    return count
+    def find_xmas(self):
+        return sum(self.count_xmas_at(Point(x, y)) for y, x in itertools.product(range(self.max_y + 1), range(self.max_x + 1)))
 
 
-
-print(find_xmas(data))
-print(find_mas_x(data))
+m = Map(data)
+print(m.find_xmas())
+print(m.find_mas_x())
