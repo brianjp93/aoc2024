@@ -21,7 +21,7 @@ def is_valid_page(page):
         if rule := rules.get(n, None):
             before = set(page[:i])
             after = set(page[i+1:])
-            if rule["before"] & after or rule["after"] & before:
+            if (rule["before"] & after) | (rule["after"] & before):
                 return False
     return True
 
@@ -39,17 +39,14 @@ def fix_page(page):
                     page[i2], page[i] = page[i], page[i2]
     return page
 
-total = 0
+p1 = p2 = 0
 for page in pages:
     if is_valid_page(page):
         idx = len(page) // 2
-        total += page[idx]
-print(total)
-
-total = 0
-for page in pages:
-    if not is_valid_page(page):
+        p1 += page[idx]
+    else:
         page = fix_page(page)
         idx = len(page) // 2
-        total += page[idx]
-print(total)
+        p2 += page[idx]
+print(p1)
+print(p2)
