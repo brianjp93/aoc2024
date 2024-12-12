@@ -1,0 +1,67 @@
+from dataclasses import dataclass
+from typing import Self
+
+
+@dataclass(frozen=True)
+class Point:
+    x: int
+    y: int
+
+    def __str__(self) -> str:
+        return f"({self.x}, {self.y})"
+
+    def __repr__(self) -> str:
+        return f"({self.x}, {self.y})"
+
+    def __hash__(self) -> int:
+        return hash((self.x, self.y))
+
+    def __add__(self, other: Self | tuple[int, int]):
+        if isinstance(other, tuple):
+            x = other[0]
+            y = other[1]
+        else:
+            x = other.x
+            y = other.y
+        return self.__class__(self.x + x, self.y + y)
+
+    def __sub__(self, other: Self | tuple[int, int]):
+        if isinstance(other, tuple):
+            x = other[0]
+            y = other[1]
+        else:
+            x = other.x
+            y = other.y
+        return self.__add__(self.__class__(-x, -y))
+
+    def copy(self):
+        return self.__class__(self.x, self.y)
+
+
+class StringMap:
+    def __init__(self, data):
+        self.m, self.max_x, self.max_y = self.parse(data)
+
+    def parse(self, data):
+        m: dict[Point, str] = {}
+        max_x = max_y = 0
+        for y, row in enumerate(data.splitlines()):
+            max_y = max(max_y, y)
+            for x, ch in enumerate(row):
+                m[Point(x, y)] = ch
+                max_x = max(max_x, x)
+        return m, max_x, max_y
+
+class IntMap:
+    def __init__(self, data):
+        self.m, self.max_x, self.max_y = self.parse(data)
+
+    def parse(self, data):
+        m: dict[Point, int] = {}
+        max_x = max_y = 0
+        for y, row in enumerate(data.splitlines()):
+            max_y = max(max_y, y)
+            for x, ch in enumerate(row):
+                m[Point(x, y)] = int(ch)
+                max_x = max(max_x, x)
+        return m, max_x, max_y
