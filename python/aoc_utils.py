@@ -16,6 +16,9 @@ class Point:
     def __hash__(self) -> int:
         return hash((self.x, self.y))
 
+    def __lt__(self, other):
+        return (self.x, self.y) < (other.x, other.y)
+
     def __add__(self, other: Self | tuple[int, int]):
         if isinstance(other, tuple):
             x = other[0]
@@ -39,6 +42,10 @@ class Point:
 
 
 class StringMap:
+    pos_char = False
+    end_char = False
+    empty_char = "."
+
     def __init__(self, data):
         self.m, self.max_x, self.max_y = self.parse(data)
 
@@ -48,7 +55,14 @@ class StringMap:
         for y, row in enumerate(data.splitlines()):
             max_y = max(max_y, y)
             for x, ch in enumerate(row):
-                m[Point(x, y)] = ch
+                point = Point(x, y)
+                if ch == self.pos_char:
+                    self.pos = point
+                    ch = self.empty_char
+                elif ch == self.end_char:
+                    self.end = point
+                    ch = self.empty_char
+                m[point] = ch
                 max_x = max(max_x, x)
         return m, max_x, max_y
 
