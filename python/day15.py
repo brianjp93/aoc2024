@@ -2,6 +2,13 @@ from pathlib import Path
 from aoc_utils import Point
 
 
+DIRS = {
+    '>': Point(1, 0),
+    'v': Point(0, 1),
+    '<': Point(-1, 0),
+    '^': Point(0, -1),
+}
+
 data = (Path(__file__).parent.parent / "data/day15.txt").read_text().strip()
 
 class Map:
@@ -137,14 +144,6 @@ class Map2(Map):
     def gps(self):
         return sum(100 * point.y + point.x for point, ch in self.m.items() if ch == '[')
 
-
-
-DIRS = {
-    '>': Point(1, 0),
-    'v': Point(0, 1),
-    '<': Point(-1, 0),
-    '^': Point(0, -1),
-}
 
 
 map_data, moves = data.split("\n\n")
