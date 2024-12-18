@@ -67,4 +67,5 @@ while True:
     found = m.min_path(70, bfs=False)
     if found is None:
         print(i)
+        break
     i += 1
