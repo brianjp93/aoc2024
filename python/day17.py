@@ -99,6 +99,8 @@ class Machine:
         return low + ((high - low) // 2) - 1
 
     def find_first_n_digit(self, n):
+        if n == 1:
+            return 1
         initial = 1
         while True:
             self.run_at(initial)
@@ -135,33 +137,9 @@ class Machine:
 
 
 machine = Machine(data)
-print(machine.run())
-machine.reset()
-# output = machine.run()
+print(f"p1={','.join(map(str, machine.run()))}")
 
-
-
-print(machine.find_first_n_digit(len(machine.program) - 1))
-print(machine.output)
-#
-# low = 35184372088832
-# high = 281474976710655
-
-indexes = [1] + [machine.find_first_n_digit(i) for i in range(2, len(machine.program) + 1)]
-
-# machine.run_at(low + 4398046511104)
-# machine.run_at(low + 4398046511103)
-#     indexes[-1]*7
-#     + indexes[-2]*2
-#     + indexes[-3]*2
-#     + indexes[-4]*6
-#     + indexes[-5]*4
-#     + indexes[-6]*2
-#     + indexes[-7]*4
-#     + indexes[-8]*5
-#     + indexes[-9]*5
-# ))
-
+indexes = [machine.find_first_n_digit(i) for i in range(1, len(machine.program) + 1)]
 
 def compute(coeffs):
     return sum(c * indexes[-(i + 1)] for i, c in enumerate(coeffs))
