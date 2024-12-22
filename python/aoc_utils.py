@@ -1,8 +1,12 @@
 from dataclasses import dataclass
 from typing import Self
+from functools import total_ordering
 
+
+DIRS_4 = [(0, -1), (1, 0), (0, 1), (-1, 0)]
 
 @dataclass(frozen=True)
+@total_ordering
 class Point:
     x: int
     y: int
@@ -17,6 +21,8 @@ class Point:
         return hash((self.x, self.y))
 
     def __lt__(self, other):
+        if other is None:
+            return False
         return (self.x, self.y) < (other.x, other.y)
 
     def __add__(self, other: Self | tuple[int, int]):
@@ -39,6 +45,12 @@ class Point:
 
     def copy(self):
         return self.__class__(self.x, self.y)
+
+    def manhattan(self, other: Self | tuple[int, int]):
+        if isinstance(other, tuple):
+            other = self.__class__(*other)
+        diff = self - other
+        return abs(diff.x) + abs(diff.y)
 
 
 class StringMap:
